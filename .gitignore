@@ -1,3 +1,4 @@
 /build
 standardized_mutual_info.c
-*.so
+**/*.so
+**/*.pyc
