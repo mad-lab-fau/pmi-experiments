@@ -3,9 +3,9 @@ from numpy import ones, append
 from numpy.typing import ArrayLike, NDArray
 from numpy.random import default_rng, SeedSequence, BitGenerator, Generator
 from scipy.optimize import root_scalar
-import sys
 from mpmath import stirling2, bell, factorial, power, inf, nsum, floor
 from mpmath import exp as mpexp
+import sys
 sys.setrecursionlimit(100_000_000)
 
 class RandomSetPartition:
