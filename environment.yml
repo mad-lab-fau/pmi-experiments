@@ -8,4 +8,6 @@ dependencies:
   - scipy=1.10.0
   - cython=0.29.33
   - mpmath=1.2.1
+  - pandas=1.5.3
+  - tqdm=4.65.0
 
