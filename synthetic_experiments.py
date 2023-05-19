@@ -9,13 +9,14 @@ from numpy.random import default_rng, SeedSequence, BitGenerator, Generator
 from itertools import chain
 from inspect import signature
 from sklearn.metrics.cluster import contingency_matrix, rand_score
-from clustering_comparison_measures import p_value_adjusted_mutual_information_2_normal
+from clustering_comparison_measures import standardized_rand_score, p_value_adjusted_mutual_information_q_mc, p_value_adjusted_mutual_information_2_normal
 import scipy.sparse as sp
+from scipy.special import erf
 
 # Benchmarking imports
 from random_partition import RandomSetPartition
 from time import perf_counter
-from tqdm import tqdm
+from tqdm import tqdm, trange
 import signal
 
 
@@ -140,6 +141,41 @@ def romano_experiment(comparison_metrics: List[Tuple[str, Callable, Dict[str, An
 
     df = pd.DataFrame(results, columns=[
                       "metric_name", "number_clusters", "metric_values"])
+    return df
+
+def standardization_vs_p_value(n_samples: int, n_elements: List[int], accuracy_goal: float = 1e-3, seed: SeedSequence = SeedSequence()) -> pd.DataFrame:
+    """Experiment to compare the standardization approach to the p-value approach.
+
+    We generate random clusterings and compare the Monte Carlo and normal approximation
+    for the PMI2 metric.
+
+    Args:
+        n_samples: Number of samples to generate
+        n_elements: List of number of elements in the clusterings
+        seed: random seed sequence to use for reproducibility
+
+    Returns:
+        Dataframe with raw results
+    """
+    prng = default_rng(seed=seed)
+
+    clustering_dist = RandomSetPartition(prng)
+
+    results = {'SRI': [], 'p-value': [], 'p-error': [], 'n': []}
+
+    for n in n_elements:
+        for _ in trange(n_samples):
+            labels_true = clustering_dist.random_partition(n)
+            labels_pred = clustering_dist.random_partition(n)
+            sri = p_value_adjusted_mutual_information_2_normal(labels_true, labels_pred)
+            p_value, p_err = p_value_adjusted_mutual_information_q_mc(
+                labels_true, labels_pred, q=2.0, seed=prng, accuracy_goal=accuracy_goal)
+            results['PMI2_normal'].append(sri)
+            results['PMI2_mc'].append(p_value)
+            results['PMI2_mc_err'].append(p_err)
+            results['n'].append(n)
+
+    df = pd.DataFrame(results)
     return df
 
 if __name__ == "__main__":
