@@ -17,7 +17,7 @@ from tqdm import tqdm
 
 from clustering_comparison_measures import standardized_rand_score
 
-dataset_names = ["olivetti", "digits", "mnist"]
+dataset_names = ["olivetti", "digits"]
 metric_names = ["ri", "ari", "sri"]
 
 
@@ -117,14 +117,9 @@ def main():
         "rep_id",
         "k_true",
         "k_used",
-        "mi",
-        "ami",
-        "smi",
-        "pmi",
         "ri",
         "ari",
         "sri",
-        "pri",
     ]
     df = pd.DataFrame.from_records(records, columns=columns)
     df.to_csv("clustering.csv", index=False)
