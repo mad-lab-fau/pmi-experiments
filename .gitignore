@@ -2,3 +2,10 @@
 standardized_mutual_info.c
 **/*.so
 **/*.pyc
+**/*.csv
+**/*.gz
+**/*.txt
+**/*.pkz
+**/*.gml
+/data
+/.vscode
