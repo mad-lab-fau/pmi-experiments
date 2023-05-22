@@ -6,12 +6,16 @@ from scipy.optimize import root_scalar
 from mpmath import stirling2, bell, factorial, power, inf, nsum, floor
 from mpmath import exp as mpexp
 import sys
+
 sys.setrecursionlimit(100_000_000)
+
 
 class RandomSetPartition:
     """Class to generate random partitions of a set."""
 
-    def __init__(self, seed: Union[None, SeedSequence, BitGenerator, Generator] = None) -> None:
+    def __init__(
+        self, seed: Union[None, SeedSequence, BitGenerator, Generator] = None
+    ) -> None:
         self._prng = default_rng(seed)
         self._cache = {}
 
@@ -34,8 +38,7 @@ class RandomSetPartition:
         if n > 5_000:
             # Limit Cache size to < 1 GB (guessing 8 bytes per int)
             return int(stirling2(n, k))
-        x = self._count_partitions(n - 1, k - 1) + \
-            k * self._count_partitions(n - 1, k)
+        x = self._count_partitions(n - 1, k - 1) + k * self._count_partitions(n - 1, k)
         self._cache[n, k] = x
         return x
 
@@ -78,13 +81,23 @@ class RandomSetPartition:
             k -= 1
         else:
             # Root finding if we are in the tail
-            x = root_scalar(lambda x: (nsum(lambda k: power(
-                k, n) / factorial(k), [1, floor(1 / x)]) / e_bell) - u if x != 0 else 1, bracket=[0, 1]).root
+            x = root_scalar(
+                lambda x: (
+                    nsum(lambda k: power(k, n) / factorial(k), [1, floor(1 / x)])
+                    / e_bell
+                )
+                - u
+                if x != 0
+                else 1,
+                bracket=[0, 1],
+            ).root
             k = int(floor(1 / x))
         # Now assign n items to k bins
         return self._prng.integers(0, k, size=n)
 
-    def _random_partition_brute_force(self, n: int, k: int, min_label: int = 0) -> NDArray:
+    def _random_partition_brute_force(
+        self, n: int, k: int, min_label: int = 0
+    ) -> NDArray:
         """Return a random partition of an integer via brute force.
 
         Args:
@@ -97,9 +110,14 @@ class RandomSetPartition:
         """
         if k == 1:
             return ones(n, dtype=int) * min_label
-        if self._prng.random() < self._count_partitions(n - 1, k - 1) / self._count_partitions(n, k):
+        if self._prng.random() < self._count_partitions(
+            n - 1, k - 1
+        ) / self._count_partitions(n, k):
             # n is a singleton in the partition
-            return append(self._random_partition_brute_force(n - 1, k - 1, min_label + 1), min_label)
+            return append(
+                self._random_partition_brute_force(n - 1, k - 1, min_label + 1),
+                min_label,
+            )
         else:
             # n is in a partition with more than one element
             partition = self._random_partition_brute_force(n - 1, k, min_label)
@@ -120,7 +138,9 @@ class RandomSetPartition:
         else:
             return self._random_partition_brute_force(n, k)
 
-    def reseed(self, seed: Union[None, SeedSequence, BitGenerator, Generator] = None) -> None:
+    def reseed(
+        self, seed: Union[None, SeedSequence, BitGenerator, Generator] = None
+    ) -> None:
         """Reseed the random number generator.
 
         Args:
