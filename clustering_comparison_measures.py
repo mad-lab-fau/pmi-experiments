@@ -9,7 +9,7 @@ from scipy.stats import random_table
 from standardized_mutual_info import standardized_mutual_info_cython
 
 
-def _tsallis_entropy(p: NDArray, q: float = 1.0, axis: Union[int, Tuple, None] =None):
+def _tsallis_entropy(p: NDArray, q: float = 1.0, axis: Union[int, Tuple, None] = None):
     """Tsallis entropy of a probability distribution.
 
     Args:
@@ -26,6 +26,7 @@ def _tsallis_entropy(p: NDArray, q: float = 1.0, axis: Union[int, Tuple, None] =
     if q == 1.0:
         return -np.sum(p * np.log(p, where=p > 0), axis=axis)
     return 1 / (q - 1) * (1 - (p**q).sum(axis=axis))
+
 
 def p_value_adjusted_mutual_information_q_mc(
     labels_true: ArrayLike,
@@ -57,7 +58,9 @@ def p_value_adjusted_mutual_information_q_mc(
     prng = default_rng(seed=seed)
 
     if contingency is None:
-        contingency: sp.csr_matrix = contingency_matrix(labels_true, labels_pred, sparse=True)
+        contingency: sp.csr_matrix = contingency_matrix(
+            labels_true, labels_pred, sparse=True
+        )
 
     a = np.ravel(contingency.sum(axis=1))
     b = np.ravel(contingency.sum(axis=0))
@@ -75,13 +78,13 @@ def p_value_adjusted_mutual_information_q_mc(
     p_value_error = 1.0
 
     while total_count < 2_000 or p_value_error > accuracy_goal:
-        contingencies = contingency_dist.rvs(
-            size=batch_size, random_state=prng)
+        contingencies = contingency_dist.rvs(size=batch_size, random_state=prng)
 
-        joint_entropy_sample = _tsallis_entropy(contingencies / n,
-                                               q=q, axis=(1, 2))
-        true_count += np.sum((joint_entropy_sample > joint_entropy) +
-                             0.5 * (joint_entropy_sample == joint_entropy))
+        joint_entropy_sample = _tsallis_entropy(contingencies / n, q=q, axis=(1, 2))
+        true_count += np.sum(
+            (joint_entropy_sample > joint_entropy)
+            + 0.5 * (joint_entropy_sample == joint_entropy)
+        )
         total_count += batch_size
 
         p_value = true_count / total_count
@@ -90,7 +93,12 @@ def p_value_adjusted_mutual_information_q_mc(
 
     return p_value, p_value_error
 
-def standardized_rand_score(labels_true: ArrayLike, labels_pred: ArrayLike, contingency: Optional[sp.csr_matrix] = None) -> float:
+
+def standardized_rand_score(
+    labels_true: ArrayLike,
+    labels_pred: ArrayLike,
+    contingency: Optional[sp.csr_matrix] = None,
+) -> float:
     """Standardized Rand index for two clusterings under the random permutation model.
 
     Args:
@@ -108,22 +116,19 @@ def standardized_rand_score(labels_true: ArrayLike, labels_pred: ArrayLike, cont
 
     if n < 4:
         if n < 2:
-            raise ValueError(
-                "Standardized Rand index is not defined for n_samples < 2")
+            raise ValueError("Standardized Rand index is not defined for n_samples < 2")
         raise NotImplementedError(
-            "Standardized Rand index is not implemented for n_samples < 4")
+            "Standardized Rand index is not implemented for n_samples < 4"
+        )
 
     # Computation using the contingency data
     if contingency is None:
-        contingency = contingency_matrix(
-            labels_true, labels_pred, sparse=True
-        )
+        contingency = contingency_matrix(labels_true, labels_pred, sparse=True)
     a = np.ravel(contingency.sum(axis=0))
     b = np.ravel(contingency.sum(axis=1))
 
     if len(a) < 2 or len(b) < 2:
-        raise ValueError(
-            "Standardized Rand index is not defined for n_clusters < 2")
+        raise ValueError("Standardized Rand index is not defined for n_clusters < 2")
 
     x = (contingency.data * (contingency.data - 1)).sum() / 2
 
@@ -133,20 +138,27 @@ def standardized_rand_score(labels_true: ArrayLike, labels_pred: ArrayLike, cont
     a_sum = (a * (a - 1)).sum()
     if max(b) > n - 2:
         ex = 0.5 * ((n - 2) / n) * a_sum
-        ex2 = 0.25 * (a * (a_sum - 2 * (a - 1))**2 / n).sum()
+        ex2 = 0.25 * (a * (a_sum - 2 * (a - 1)) ** 2 / n).sum()
     else:
-        a2_sum = ((a * (a - 1))**2).sum()
+        a2_sum = ((a * (a - 1)) ** 2).sum()
         b_sum = (b * (b - 1)).sum()
-        b2_sum = ((b * (b - 1))**2).sum()
+        b2_sum = ((b * (b - 1)) ** 2).sum()
         ex = a_sum * b_sum / (2 * n * (n - 1))
-        normalizer = ((n - 1) * (n - 2) * (n - 3))
+        normalizer = (n - 1) * (n - 2) * (n - 3)
 
-        ij = 2 * a_sum * ((n - b) * (n - 3 * (b - 1)) * (b - 1) * b / normalizer).sum() + (a**2 * (a - 1)).sum() * ((4 * n - 5 * b + 3)
-                                                                                                                    * (b - 2) * (b - 1) * b / normalizer).sum() + (a**3 * (a - 1) / normalizer).sum() * ((b - 3) * (b - 2) * (b - 1) * b).sum()
-        ipj = (b * (b - 1) * (b - 2) * (b - 3) / normalizer).sum() * \
-            (a_sum**2 - a2_sum)
-        ijp = (a * (a - 1) * (a - 2) * (a - 3) / normalizer).sum() * \
-            (b_sum**2 - b2_sum)
+        ij = (
+            2 * a_sum * ((n - b) * (n - 3 * (b - 1)) * (b - 1) * b / normalizer).sum()
+            + (a**2 * (a - 1)).sum()
+            * ((4 * n - 5 * b + 3) * (b - 2) * (b - 1) * b / normalizer).sum()
+            + (a**3 * (a - 1) / normalizer).sum()
+            * ((b - 3) * (b - 2) * (b - 1) * b).sum()
+        )
+        ipj = (b * (b - 1) * (b - 2) * (b - 3) / normalizer).sum() * (
+            a_sum**2 - a2_sum
+        )
+        ijp = (a * (a - 1) * (a - 2) * (a - 3) / normalizer).sum() * (
+            b_sum**2 - b2_sum
+        )
         ipjp = (a_sum**2 - a2_sum) / normalizer * (b_sum**2 - b2_sum)
         ex2 = (ij + ipj + ijp + ipjp) / (4 * n)
 
@@ -159,7 +171,12 @@ def standardized_rand_score(labels_true: ArrayLike, labels_pred: ArrayLike, cont
 
     return (x - ex) / np.sqrt(var_x)
 
-def standardized_mutual_info(labels_true: ArrayLike, labels_pred: ArrayLike, contingency: Optional[sp.csr_matrix] = None) -> float:
+
+def standardized_mutual_info(
+    labels_true: ArrayLike,
+    labels_pred: ArrayLike,
+    contingency: Optional[sp.csr_matrix] = None,
+) -> float:
     """Standardized mutual information for two clusterings under pairwise permutations.
 
     This code is based on the paper "Standardized Mutual Information for Clustering
@@ -184,6 +201,7 @@ def standardized_mutual_info(labels_true: ArrayLike, labels_pred: ArrayLike, con
         )
     return standardized_mutual_info_cython(contingency, n)
 
+
 def p_value_adjusted_mutual_information_2_normal(
     labels_true: ArrayLike,
     labels_pred: ArrayLike,
@@ -202,4 +220,9 @@ def p_value_adjusted_mutual_information_2_normal(
     Returns:
         The p-value estimate.
     """
-    return 0.5 * (1 + erf(standardized_rand_score(labels_true, labels_pred, contingency) / np.sqrt(2)))
+    return 0.5 * (
+        1
+        + erf(
+            standardized_rand_score(labels_true, labels_pred, contingency) / np.sqrt(2)
+        )
+    )
