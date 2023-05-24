@@ -386,7 +386,7 @@ if __name__ == "__main__":
         trials=5_000,
         seed=romano_seed,
     )
-    df.to_csv("romano.csv", index=False)
+    df.to_csv("results/romano.csv", index=False)
     del df
 
     # Standardization vs p-value experiment
@@ -397,7 +397,7 @@ if __name__ == "__main__":
         accuracy_goal=1e-3,
         seed=42,
     )
-    df.to_csv("standardization_vs_p_value.csv", index=False)
+    df.to_csv("results/standardization_vs_p_value.csv", index=False)
     del df
 
     # Runtime Experiment 1
@@ -417,7 +417,7 @@ if __name__ == "__main__":
     df = synthetic_rcn_benchmark(
         metrics, rcn_grid, seed=rcn_seed, trials=16, n_jobs=n_jobs
     )
-    df.to_csv("rcn_benchmark.csv", index=False)
+    df.to_csv("results/rcn_benchmark.csv", index=False)
     del df
 
     # Runtime Experiment 2
@@ -437,5 +437,5 @@ if __name__ == "__main__":
     df = synthetic_rcn_benchmark(
         metrics, rcn_grid, seed=n_seed, trials=100, n_jobs=n_jobs
     )
-    df.to_csv("n_benchmark_accuracy.csv", index=False)
+    df.to_csv("results/n_benchmark_accuracy.csv", index=False)
     del df

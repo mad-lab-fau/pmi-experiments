@@ -257,7 +257,7 @@ def main():
         "sri",
     ]
     df = pd.DataFrame.from_records(records, columns=columns)
-    df.to_csv("community_detection_{}.csv".format(exp_name), index=False)
+    df.to_csv("results/community_detection_{}.csv".format(exp_name), index=False)
 
 
 if __name__ == "__main__":
