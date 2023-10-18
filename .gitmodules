@@ -1,0 +1,3 @@
+[submodule "other_indices"]
+	path = other_indices
+	url = git@github.com:MartijnGosgens/validation_indices.git
