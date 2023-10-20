@@ -141,13 +141,17 @@ if __name__ == "__main__":
             tqdm.write(f" - {index.__name__}")
     p.close()
 
+    tqdm.write("Checking Type II bias with the following parameters:")
     # Type II bias
-    n = 5
+    n = 4
     k1 = 2
     k2 = 3
 
     random_partition = RandomSetPartition(seed=42)
     a = [int(i) for i in random_partition.random_partition(n, k=2)]
+
+    tqdm.write(f"n={n}, k1={k1}, k2={k2}")
+    tqdm.write(f"A = {a}")
 
     for b in tqdm(
         generate_k_set_partitions(list(range(n)), k1),
