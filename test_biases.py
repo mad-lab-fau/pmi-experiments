@@ -169,5 +169,6 @@ if __name__ == "__main__":
     tqdm.write("\nType II biased:")
     for key, value in results.items():
         frac = Fraction(results[key] + total, 2 * total)
-        if frac.as_integer_ratio() != (1, 2):
-            tqdm.write(f"- {key}")
+        numerator, denominator = frac.as_integer_ratio()
+        if (numerator, denominator) != (1, 2):
+            tqdm.write(f"- {key}\tE = {numerator} / {denominator}")
