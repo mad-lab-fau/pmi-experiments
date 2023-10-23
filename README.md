@@ -17,10 +17,16 @@ The Monte Carlo and normal approximation to the PMI are implemented in `clusteri
 # Synthetic experiments in Figures 1, 2, 3
 python synthetic_experiments.py
 
-# Clustering experiments in Figure 4a and 4b
-python real_experiment_clustering.py -d 
-python real_experiment_clustering.py -r 1000
+# Clustering experiments
+python real_experiment_clustering.py --download
+# Figure 4a and 4b
+python real_experiment_clustering.py -r 1000 -o ./results/clustering.csv -d olivetti digits -a kmeans
+# Appendix E Figure 5
+python real_experiment_clustering.py -r 1000 -s -o ./results/clustering_spectral.csv -d segment texture -a spectral
 
 # Community detection experiment in Figure 4c
 python real_experiment_community_detection.py -c 30 -r 100
+
+# Examples for type II bias in Table 2
+python test_biases.py
 ```
