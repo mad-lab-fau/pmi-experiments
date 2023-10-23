@@ -13,6 +13,11 @@ Compile our Cython implementation of the standardized mutual information:
 python setup.py build_ext --inplace
 ```
 
+Clone the code for [other clustering comparison indices](https://github.com/MartijnGosgens/validation_indices)
+```
+git submodule update --init --recursive
+```
+
 The Monte Carlo and normal approximation to the PMI are implemented in `clustering_comparison_measures.py`. The experiments can be run using:
 ```
 # Synthetic experiments in Figures 1, 2, 3
