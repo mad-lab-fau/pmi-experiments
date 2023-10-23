@@ -5,6 +5,7 @@ This repository contains the code to reproduce the experiments in our paper *$p$
 Install the dependencies with `conda`:
 ```
 conda env create -f ./environment.yml
+conda activate p_value_ri
 ```
 
 Compile our Cython implementation of the standardized mutual information:
